@@ -48,6 +48,24 @@ def plot_time_series(timesteps, values, format='.', start=0, end=None, label=Non
     plt.legend(fontsize=14) # make label bigger
   plt.grid(True)
 
+def evaluate_preds(y_true, y_pred):
+  # Make sure float32 (for metric calculations)
+  y_true = tf.cast(y_true, dtype=tf.float32)
+  y_pred = tf.cast(y_pred, dtype=tf.float32)
+
+  # Calculate various metrics
+  mae = tf.keras.metrics.mean_absolute_error(y_true, y_pred)
+  mse = tf.keras.metrics.mean_squared_error(y_true, y_pred) # puts and emphasis on outliers (all errors get squared)
+  rmse = tf.sqrt(mse)
+  mape = tf.keras.metrics.mean_absolute_percentage_error(y_true, y_pred)
+  mase = mae / tf.reduce_mean(tf.abs(y_true[1:] - y_true[:-1]))
+  
+  return {"mae": mae.numpy(),
+          "mse": mse.numpy(),
+          "rmse": rmse.numpy(),
+          "mape": mape.numpy(),
+          "mase": mase.numpy()}
+  
 # Note: The following confusion matrix code is a remix of Scikit-Learn's 
 # plot_confusion_matrix function - https://scikit-learn.org/stable/modules/generated/sklearn.metrics.plot_confusion_matrix.html
 import itertools
